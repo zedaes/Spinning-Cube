@@ -2,100 +2,100 @@ import math
 import os
 import time
 
-A, B, C = 0, 0, 0
+a, b, c = 0, 0, 0
 
-cube_width = 20
+cubeWidth = 20
 width, height = 160, 44
-z_buffer = [0] * (width * height)
+zBuffer = [0] * (width * height)
 buffer = [' '] * (width * height)
-background_ascii_code = ' '
-distance_from_cam = 100
-horizontal_offset = 0
-K1 = 40
+backgroundAsciiCode = ' '
+distanceFromCam = 100
+horizontalOffset = 0
+k1 = 40
 
-increment_speed = 0.6
+incrementSpeed = 0.6
 
-def calculate_x(i, j, k):
+def calculateX(i, j, k):
     return (
-        j * math.sin(A) * math.sin(B) * math.cos(C) - 
-        k * math.cos(A) * math.sin(B) * math.cos(C) + 
-        j * math.cos(A) * math.sin(C) + 
-        k * math.sin(A) * math.sin(C) + 
-        i * math.cos(B) * math.cos(C)
+        j * math.sin(a) * math.sin(b) * math.cos(c) - 
+        k * math.cos(a) * math.sin(b) * math.cos(c) + 
+        j * math.cos(a) * math.sin(c) + 
+        k * math.sin(a) * math.sin(c) + 
+        i * math.cos(b) * math.cos(c)
     )
 
-def calculate_y(i, j, k):
+def calculateY(i, j, k):
     return (
-        j * math.cos(A) * math.cos(C) + 
-        k * math.sin(A) * math.cos(C) - 
-        j * math.sin(A) * math.sin(B) * math.sin(C) + 
-        k * math.cos(A) * math.sin(B) * math.sin(C) - 
-        i * math.cos(B) * math.sin(C)
+        j * math.cos(a) * math.cos(c) + 
+        k * math.sin(a) * math.cos(c) - 
+        j * math.sin(a) * math.sin(b) * math.sin(c) + 
+        k * math.cos(a) * math.sin(b) * math.sin(c) - 
+        i * math.cos(b) * math.sin(c)
     )
 
-def calculate_z(i, j, k):
+def calculateZ(i, j, k):
     return (
-        k * math.cos(A) * math.cos(B) - 
-        j * math.sin(A) * math.cos(B) + 
-        i * math.sin(B)
+        k * math.cos(a) * math.cos(b) - 
+        j * math.sin(a) * math.cos(b) + 
+        i * math.sin(b)
     )
 
-def calculate_for_surface(cube_x, cube_y, cube_z, ch):
+def calculateForSurface(cubeX, cubeY, cubeZ, ch):
     global x, y, z, ooz, xp, yp, idx
-    x = calculate_x(cube_x, cube_y, cube_z)
-    y = calculate_y(cube_x, cube_y, cube_z)
-    z = calculate_z(cube_x, cube_y, cube_z) + distance_from_cam
+    x = calculateX(cubeX, cubeY, cubeZ)
+    y = calculateY(cubeX, cubeY, cubeZ)
+    z = calculateZ(cubeX, cubeY, cubeZ) + distanceFromCam
 
     ooz = 1 / z
 
-    xp = int(width / 2 + horizontal_offset + K1 * ooz * x * 2)
-    yp = int(height / 2 + K1 * ooz * y)
+    xp = int(width / 2 + horizontalOffset + k1 * ooz * x * 2)
+    yp = int(height / 2 + k1 * ooz * y)
 
     idx = xp + yp * width
     if 0 <= idx < width * height:
-        if ooz > z_buffer[idx]:
-            z_buffer[idx] = ooz
+        if ooz > zBuffer[idx]:
+            zBuffer[idx] = ooz
             buffer[idx] = ch
 
 while True:
     buffer = [' '] * (width * height)
-    z_buffer = [0] * (width * height)
+    zBuffer = [0] * (width * height)
 
-    cube_width = 20
-    horizontal_offset = -2 * cube_width
+    cubeWidth = 20
+    horizontalOffset = -2 * cubeWidth
 
-    for cube_x in [i * increment_speed for i in range(-int(cube_width / increment_speed), int(cube_width / increment_speed))]:
-        for cube_y in [i * increment_speed for i in range(-int(cube_width / increment_speed), int(cube_width / increment_speed))]:
-            calculate_for_surface(cube_x, cube_y, -cube_width, '@')
-            calculate_for_surface(cube_width, cube_y, cube_x, '$')
-            calculate_for_surface(-cube_width, cube_y, -cube_x, '~')
-            calculate_for_surface(-cube_x, cube_y, cube_width, '#')
-            calculate_for_surface(cube_x, -cube_width, -cube_y, ';')
-            calculate_for_surface(cube_x, cube_width, cube_y, '+')
+    for cubeX in [i * incrementSpeed for i in range(-int(cubeWidth / incrementSpeed), int(cubeWidth / incrementSpeed))]:
+        for cubeY in [i * incrementSpeed for i in range(-int(cubeWidth / incrementSpeed), int(cubeWidth / incrementSpeed))]:
+            calculateForSurface(cubeX, cubeY, -cubeWidth, '@')
+            calculateForSurface(cubeWidth, cubeY, cubeX, '$')
+            calculateForSurface(-cubeWidth, cubeY, -cubeX, '~')
+            calculateForSurface(-cubeX, cubeY, cubeWidth, '#')
+            calculateForSurface(cubeX, -cubeWidth, -cubeY, ';')
+            calculateForSurface(cubeX, cubeWidth, cubeY, '+')
 
-    cube_width = 10
-    horizontal_offset = 1 * cube_width
+    cubeWidth = 10
+    horizontalOffset = 1 * cubeWidth
 
-    for cube_x in [i * increment_speed for i in range(-int(cube_width / increment_speed), int(cube_width / increment_speed))]:
-        for cube_y in [i * increment_speed for i in range(-int(cube_width / increment_speed), int(cube_width / increment_speed))]:
-            calculate_for_surface(cube_x, cube_y, -cube_width, '@')
-            calculate_for_surface(cube_width, cube_y, cube_x, '$')
-            calculate_for_surface(-cube_width, cube_y, -cube_x, '~')
-            calculate_for_surface(-cube_x, cube_y, cube_width, '#')
-            calculate_for_surface(cube_x, -cube_width, -cube_y, ';')
-            calculate_for_surface(cube_x, cube_width, cube_y, '+')
+    for cubeX in [i * incrementSpeed for i in range(-int(cubeWidth / incrementSpeed), int(cubeWidth / incrementSpeed))]:
+        for cubeY in [i * incrementSpeed for i in range(-int(cubeWidth / incrementSpeed), int(cubeWidth / incrementSpeed))]:
+            calculateForSurface(cubeX, cubeY, -cubeWidth, '@')
+            calculateForSurface(cubeWidth, cubeY, cubeX, '$')
+            calculateForSurface(-cubeWidth, cubeY, -cubeX, '~')
+            calculateForSurface(-cubeX, cubeY, cubeWidth, '#')
+            calculateForSurface(cubeX, -cubeWidth, -cubeY, ';')
+            calculateForSurface(cubeX, cubeWidth, cubeY, '+')
 
-    cube_width = 5
-    horizontal_offset = 8 * cube_width
+    cubeWidth = 5
+    horizontalOffset = 8 * cubeWidth
 
-    for cube_x in [i * increment_speed for i in range(-int(cube_width / increment_speed), int(cube_width / increment_speed))]:
-        for cube_y in [i * increment_speed for i in range(-int(cube_width / increment_speed), int(cube_width / increment_speed))]:
-            calculate_for_surface(cube_x, cube_y, -cube_width, '@')
-            calculate_for_surface(cube_width, cube_y, cube_x, '$')
-            calculate_for_surface(-cube_width, cube_y, -cube_x, '~')
-            calculate_for_surface(-cube_x, cube_y, cube_width, '#')
-            calculate_for_surface(cube_x, -cube_width, -cube_y, ';')
-            calculate_for_surface(cube_x, cube_width, cube_y, '+')
+    for cubeX in [i * incrementSpeed for i in range(-int(cubeWidth / incrementSpeed), int(cubeWidth / incrementSpeed))]:
+        for cubeY in [i * incrementSpeed for i in range(-int(cubeWidth / incrementSpeed), int(cubeWidth / incrementSpeed))]:
+            calculateForSurface(cubeX, cubeY, -cubeWidth, '@')
+            calculateForSurface(cubeWidth, cubeY, cubeX, '$')
+            calculateForSurface(-cubeWidth, cubeY, -cubeX, '~')
+            calculateForSurface(-cubeX, cubeY, cubeWidth, '#')
+            calculateForSurface(cubeX, -cubeWidth, -cubeY, ';')
+            calculateForSurface(cubeX, cubeWidth, cubeY, '+')
 
     os.system('cls' if os.name == 'nt' else 'clear')
     for k in range(width * height):
@@ -103,9 +103,8 @@ while True:
         if (k + 1) % width == 0:
             print()
 
-    A += 0.05
-    B += 0.05
-    C += 0.01
+    a += 0.05
+    b += 0.05
+    c += 0.01
 
     time.sleep(0.016)
-
