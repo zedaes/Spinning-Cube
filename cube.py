@@ -60,7 +60,7 @@ def calculateForSurface(cubeX, cubeY, cubeZ, ch):
 while True:
     buffer = [' '] * (width * height)
     zBuffer = [0] * (width * height)
-
+    #this code displays 3 cubes
     cubeWidth = 20
     horizontalOffset = -2 * cubeWidth
 
